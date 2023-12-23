@@ -26,15 +26,15 @@
 
         <div class="global-numbers">
             <div class="global-numbers-temperature">
-                <div :class="getScaleCSS(lvl)" v-for="(lvl, idx) in getValuesForParameter('temperature')" :key="idx">{{ lvl.strValue }}</div>
+                <div :class="getScaleCSS(lvl)" v-for="(lvl, idx) in getValuesForParameter('temperature')" :key="idx" :style="getScaleStepPosition(lvl)">{{ lvl.strValue }}</div>
             </div>
 
             <div class="global-numbers-oxygen">
-                <div :class="getScaleCSS(lvl)" v-for="(lvl, idx) in getValuesForParameter('oxygen')" :key="idx">{{ lvl.strValue }}</div>
+                <div :class="getScaleCSS(lvl)" v-for="(lvl, idx) in getValuesForParameter('oxygen')" :key="idx" :style="getScaleStepPosition(lvl)">{{ lvl.strValue }}</div>
             </div>
 
             <div class="global-numbers-venus" v-if="venusNextExtension">
-                <div :class="getScaleCSS(lvl)" v-for="(lvl, idx) in getValuesForParameter('venus')" :key="idx">{{ lvl.strValue }}</div>
+                <div :class="getScaleCSS(lvl)" v-for="(lvl, idx) in getValuesForParameter('venus')" :key="idx" :style="getScaleStepPosition(lvl)">{{ lvl.strValue }}</div>
             </div>
 
             <div class="global-numbers-oceans">
@@ -322,6 +322,107 @@ class GlobalParamLevel {
   }
 }
 
+// Represents the three main CSS parameters used to position
+// a parameter on the track: left, top and rotation
+class GlobalParamLevelTrackPosition {
+  constructor(
+    public cssLeft: number,
+    public cssTop: number,
+    public rotation: number,
+  ) {
+  }
+}
+
+// Helper class to position the global parameters' numbers along the global tracks
+// dynamically, regardless of the number of steps, instead of hardcoding them
+class GlobalTrackDisplay {
+  public startToEndRotation: number;
+  public directionOfRotation: number;
+
+  constructor(
+    public cssLeftStart: number,
+    public cssTopStart: number,
+    public firstStepRotation: number,
+    public lastStepRotation: number,
+    public trackDirectionX: number,
+    public trackDirectionY: number,
+  ) {
+    this.startToEndRotation = Math.abs(firstStepRotation - lastStepRotation);
+    this.directionOfRotation = (this.firstStepRotation < this.lastStepRotation) ? 1 : -1;
+  }
+
+  calculateGlobalParamPositionOnTrack(globalParamLevel: GlobalParamLevel): GlobalParamLevelTrackPosition {
+    // The three values that we need to calculate to return
+    // an instance of GlobalParamLevelTrackPosition
+    let cssLeft: number = this.cssLeftStart;
+    let cssTop: number = this.cssTopStart;
+    let rotation: number = 0;
+
+    // The higher the precision, the more granular the steps along
+    // the track curve will be, but the more iterations it will take
+    const precision: number = 10;
+
+    // The initial direction along which the numbers on the track
+    // will be distributed, i.e. the oxygen track moves from bottom
+    // to top, whereas venus moves from left to right
+    const vxStart = this.trackDirectionX;
+    const vyStart = this.trackDirectionY;
+
+    // Start at the rotation of the very first number on the track
+    const rotationStart = this.firstStepRotation;
+
+    // The amount by which the track numbers will be rotated at each step,
+    // i.e. if the first number is at a rotation of 55, and this value is 6,
+    // then the second number will be at a rotation of 49 or 61, depending on
+    // the direction of the rotation
+    let rotationPerParamLevel = this.startToEndRotation / globalParamLevel.totalSteps;
+    rotationPerParamLevel *= this.directionOfRotation;
+
+    // Based on the above, the rotation at which this particular
+    // globalParamLevel should display on its position on the track
+    rotation = rotationStart + (rotationPerParamLevel * globalParamLevel.currentStepNumber);
+
+    // The amount of rotation to perform each granular step before
+    // advancing the position in the vector's direction
+    const rotationStep = (1 / precision) * this.directionOfRotation;
+
+    let step = rotationStart;
+
+    // To calculate the left and top position of this globalParamLevel, we
+    // will iterate a number of steps along the arc of the track's curve,
+    // each loop rotating the directional vector towards `rotation`,
+    // and accumulating the position until we reach the desired rotation
+    while (this.hasReachedRotation(step, rotation) === false) {
+      // Convert the degrees of this step to radians
+      const radians = step * Math.PI / 180;
+
+      // Rotate the initial vector to the rotation of this step
+      const vx = vxStart * Math.cos(radians) - vyStart * Math.sin(radians);
+      const vy = vxStart * Math.sin(radians) + vyStart * Math.cos(radians);
+
+      // Move along this vector one more step
+      cssLeft += vx;
+      cssTop += vy;
+
+      // Increment our step angle for the next movement
+      step += rotationStep;
+    }
+
+    return new GlobalParamLevelTrackPosition(cssLeft, cssTop, rotation);
+  }
+
+  // Helper to check if our current rotation step has already reached the track
+  // step's desired rotation. This check is dynamic because the direction of
+  // the rotation can change depending on which track we are displaying
+  hasReachedRotation(currentRotation: number, rotationGoal: number): boolean {
+    if (this.firstStepRotation < rotationGoal) {
+      return currentRotation >= rotationGoal;
+    } else {
+      return currentRotation <= rotationGoal;
+    }
+  }
+}
+
 export default Vue.extend({
   name: 'board',
   props: {
@@ -433,10 +534,74 @@ export default Vue.extend({
       }
       return values;
     },
+    // Return the inline style to position this param level on the page
+    // dynamically through the helper GlobalTrackDisplay class
+    getScaleStepPosition(paramLevel: GlobalParamLevel): object {
+      const targetParameter = paramLevel.paramName;
+
+      // Static values needed to drive the positioning along this track
+      let leftStart: number;
+      let topStart: number;
+      let rotationStart: number;
+      let rotationEnd: number;
+      let trackDirectionX: number;
+      let trackDirectionY: number;
+
+      switch (targetParameter) {
+      case 'oxygen':
+        leftStart = 26.65;
+        topStart = 84.65;
+        rotationStart = -53;
+        rotationEnd = 38;
+        trackDirectionX = 0;
+        trackDirectionY = -0.071;
+        break;
+      case 'temperature':
+        leftStart = 73.15;
+        topStart = 85.75;
+        rotationStart = 57;
+        rotationEnd = -41;
+        trackDirectionX = 0;
+        trackDirectionY = -0.07;
+        break;
+      case 'venus':
+        leftStart = 23.9;
+        topStart = 21.1;
+        rotationStart = -43;
+        rotationEnd = 43;
+        trackDirectionX = 0.069;
+        trackDirectionY = 0;
+        break;
+      default:
+        throw new Error('Wrong parameter to get step position values from: ' + targetParameter);
+      }
+
+      const globalTrackDisplay = new GlobalTrackDisplay(
+        leftStart,
+        topStart,
+        rotationStart,
+        rotationEnd,
+        trackDirectionX,
+        trackDirectionY,
+      );
+
+      const paramTrackPosition = globalTrackDisplay.calculateGlobalParamPositionOnTrack(paramLevel);
+
+      const styleObject = {
+        left: `${paramTrackPosition.cssLeft}%`,
+        top: `${paramTrackPosition.cssTop}%`,
+        transform: `rotate(${paramTrackPosition.rotation}deg)`,
+        // Below is for debug
+        border: '1px solid red',
+        background: 'linear-gradient(red, red) no-repeat center / 1px 100%, linear-gradient(red, red) no-repeat center / 100% 1px',
+      };
+
+      return styleObject;
+    },
     getScaleCSS(paramLevel: GlobalParamLevel): string {
-      let css = 'global-numbers-value val-' + paramLevel.value + ' ';
+      let css = 'global-numbers-value';
       if (paramLevel.isActive) {
-        css += 'val-is-active';
+        css += ' val-is-active';
       }
       return css;
     },
