@@ -22,7 +22,7 @@ export class BoardBuilder {
   private spaces: Array<Space> = [];
   private unshufflableSpaces: Array<number> = [];
 
-  constructor(private includeVenus: boolean, private includePathfinders: boolean) {
+  constructor(private includeVenus: boolean, private includePathfinders: boolean, private equatorLength: number = 9) {
     this.spaces.push(colonySpace(SpaceName.GANYMEDE_COLONY));
     this.spaces.push(colonySpace(SpaceName.PHOBOS_SPACE_HAVEN));
   }
@@ -56,19 +56,21 @@ export class BoardBuilder {
     return this;
   }
 
-
   build(): Array<Space> {
-    const tilesPerRow = [5, 6, 7, 8, 9, 8, 7, 6, 5];
-    const idOffset = this.spaces.length + 1;
+    const tilesPerRow = this.getTilesPerRow(this.equatorLength);
+    const rowCountHalved = Math.floor(this.equatorLength / 2);
+
     let idx = 0;
 
-    for (let row = 0; row < 9; row++) {
+    for (let row = 0; row < tilesPerRow.length; row++) {
       const tilesInThisRow = tilesPerRow[row];
-      const xOffset = 9 - tilesInThisRow;
+      const xOffset = tilesPerRow.length - tilesInThisRow;
       for (let i = 0; i < tilesInThisRow; i++) {
-        const spaceId = idx + idOffset;
+        const spaceId = 100 + idx;
         const xCoordinate = xOffset + i;
+        const yRelativeToEquator = Math.abs(rowCountHalved - row);
         const space = newSpace(BoardBuilder.spaceId(spaceId), this.spaceTypes[idx], xCoordinate, row, this.bonuses[idx]);
+        space.yRelativeToEquator = yRelativeToEquator;
         this.spaces.push(space);
         idx++;
       }
@@ -140,5 +142,18 @@ export class BoardBuilder {
     }
     // OK to cast this.
     return strId as SpaceId;
+  }
+
+  private getTilesPerRow(equatorLength:number): Array<number> {
+    const tilesPerRow = [equatorLength];
+    let i = 1;
+
+    while (tilesPerRow.length < equatorLength) {
+      tilesPerRow.unshift(equatorLength-i);
+      tilesPerRow.push(equatorLength-i);
+      i++;
+    }
+
+    return tilesPerRow;
   }
 }

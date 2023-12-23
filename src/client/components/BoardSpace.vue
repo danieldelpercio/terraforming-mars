@@ -1,5 +1,5 @@
 <template>
-  <div :class="getMainClass()" :data_space_id="space.id">
+  <div :class="getMainClass()" :data_space_id="space.id" :style="getSpaceMargin()" v-if="+this.space.id >= 100">
     <board-space-tile
       :space="space"
       :aresExtension="aresExtension"
@@ -67,9 +67,42 @@ export default Vue.extend({
   },
   methods: {
     getMainClass(): string {
-      let css = 'board-space board-space-' + this.space.id.toString();
-      css += ' board-space-selectable';
-      return css;
+      const mainClass = 'board-space-cont';
+      const selectableClass = 'board-space-selectable';
+
+      if (+this.space.id < 100) {
+        return `${mainClass} ${this.space.id.toString()} ${selectableClass}`;
+      }
+
+      return `${mainClass} ${selectableClass}`;
+    },
+    // Calculate top and left margin values to correctly place
+    // the hexagon tiles on the planet
+    getSpaceMargin(): object {
+      // Initial position
+      const xStart = 6;
+      const yStart = 14;
+
+      const xInterval = 11;
+      const yInterval = 9;
+
+      const xOffset = 5.5;
+
+      if (this.space.yRelativeToEquator === undefined) {
+        console.error(`yRelativeToEquator is undefined on space with id ${this.space.id}`);
+        return {};
+      }
+
+      const rowOffset = this.space.yRelativeToEquator * xOffset;
+      const left = xStart + (this.space.x * xInterval) - rowOffset;
+      const top = yStart + (this.space.y * yInterval);
+
+      const styleObject = {
+        left: `${left}%`,
+        top: `${top}%`,
+      };
+
+      return styleObject;
     },
   },
   computed: {

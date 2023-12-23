@@ -25,6 +25,10 @@ export type Space = {
   /** The y-coordinate of this space, or -1 if it is not the main board (e.g. colony) */
   y: number;
 
+  /** The y-coordinate relative to the equator (longest) row. For instance,
+   * if it's the row right above or right below the equator, this is 1. */
+  yRelativeToEquator?: number;
+
   /** Optional underworld expansion resource token. */
   undergroundResources?: UndergroundResourceToken;
   /** Optional underworld player who excavated this resource token. */

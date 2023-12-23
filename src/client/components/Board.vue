@@ -440,7 +440,7 @@ export default Vue.extend({
       }
     },
     getGameBoardClassName(): string {
-      return this.venusNextExtension ? 'board-cont board-with-venus' : 'board-cont board-without-venus';
+      return this.venusNextExtension ? 'board-cont board-cont-debug board-with-venus' : 'board-cont board-cont-debug board-without-venus';
     },
   },
   computed: {

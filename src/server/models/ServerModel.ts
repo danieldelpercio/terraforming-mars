@@ -332,6 +332,10 @@ export class Server {
         spaceType: space.spaceType,
         bonus: space.bonus,
       };
+      const yRelativeToEquator = space.yRelativeToEquator;
+      if (yRelativeToEquator !== undefined) {
+        model.yRelativeToEquator = yRelativeToEquator;
+      }
       const tileType = space.tile?.tileType;
       if (tileType !== undefined) {
         model.tileType = tileType;

@@ -305,6 +305,9 @@ export abstract class Board {
           x: space.x,
           y: space.y,
         };
+        if (space.yRelativeToEquator !== undefined) {
+          serialized.yRelativeToEquator = space.yRelativeToEquator;
+        }
         if (space.undergroundResources !== undefined) {
           serialized.undergroundResources = space.undergroundResources;
         }
@@ -327,7 +330,12 @@ export abstract class Board {
       bonus: serialized.bonus,
       x: serialized.x,
       y: serialized.y,
+      yRelativeToEquator: serialized.yRelativeToEquator,
     };
+
+    if (serialized.yRelativeToEquator !== undefined) {
+      space.yRelativeToEquator = serialized.yRelativeToEquator;
+    }
 
     // TODO(kberg): Delete this block after 2023-12-01
     if (space.bonus.length > 0 && space.bonus[0] === SpaceBonus._RESTRICTED) {
