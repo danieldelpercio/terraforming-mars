@@ -311,7 +311,14 @@ import {TileView} from '@/client/components/board/TileView';
 import {BoardName} from '@/common/boards/BoardName';
 
 class GlobalParamLevel {
-  constructor(public value: number, public isActive: boolean, public strValue: string) {
+  constructor(
+    public value: number,
+    public currentStepNumber: number,
+    public totalSteps: number,
+    public isActive: boolean,
+    public strValue: string,
+    public paramName: string,
+  ) {
   }
 }
 
@@ -391,6 +398,7 @@ export default Vue.extend({
       let step: number;
       let curValue: number;
       let strValue: string;
+      let currentStepNumber: number;
 
       switch (targetParameter) {
       case 'oxygen':
@@ -414,11 +422,13 @@ export default Vue.extend({
       default:
         throw new Error('Wrong parameter to get values from: ' + targetParameter);
       }
+      const totalSteps: number = ((endValue - startValue) / step);
 
       for (let value = endValue; value >= startValue; value -= step) {
         strValue = (targetParameter === 'temperature' && value > 0) ? '+'+value : value.toString();
+        currentStepNumber = ((value - startValue) / step);
         values.push(
-          new GlobalParamLevel(value, value === curValue, strValue),
+          new GlobalParamLevel(value, currentStepNumber, totalSteps, value === curValue, strValue, targetParameter),
         );
       }
       return values;
