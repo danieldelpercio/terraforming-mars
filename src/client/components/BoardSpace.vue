@@ -1,5 +1,5 @@
 <template>
-  <div :class="getMainClass()" :data_space_id="space.id" :style="getSpaceMargin()" v-if="+this.space.id >= 100">
+  <div :class="getMainClass()" :data_space_id="space.id" :style="getSpaceMargin()">
     <board-space-tile
       :space="space"
       :aresExtension="aresExtension"
@@ -71,7 +71,7 @@ export default Vue.extend({
       const selectableClass = 'board-space-selectable';
 
       if (+this.space.id < 100) {
-        return `${mainClass} ${this.space.id.toString()} ${selectableClass}`;
+        return `${mainClass} board-space-${this.space.id.toString()} ${selectableClass}`;
       }
 
       return `${mainClass} ${selectableClass}`;
@@ -87,6 +87,10 @@ export default Vue.extend({
       const yInterval = 9;
 
       const xOffset = 5.5;
+
+      if (+this.space.id < 100) {
+        return {};
+      }
 
       if (this.space.yRelativeToEquator === undefined) {
         console.error(`yRelativeToEquator is undefined on space with id ${this.space.id}`);
