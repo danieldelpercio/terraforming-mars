@@ -76,31 +76,59 @@ export default Vue.extend({
 
       return `${mainClass} ${selectableClass}`;
     },
-    // Calculate top and left margin values to correctly place
-    // the hexagon tiles on the planet
+    // Calculate top and left % values to correctly place
+    // the hexagon tiles on the planet's board
     getSpaceMargin(): object {
-      // Initial position
-      const xStart = 6;
-      const yStart = 14;
-
-      const xInterval = 11;
-      const yInterval = 9;
-
-      const xOffset = 5.5;
-
+      // IDs lower than 100 are offworld colonies, not tiles on mars, so ignore them
       if (+this.space.id < 100) {
         return {};
       }
 
+      // Needed so compiler doesn't get grumpy, since the property is defined as optional
       if (this.space.yRelativeToEquator === undefined) {
         console.error(`yRelativeToEquator is undefined on space with id ${this.space.id}`);
         return {};
       }
 
-      const rowOffset = this.space.yRelativeToEquator * xOffset;
-      const left = xStart + (this.space.x * xInterval) - rowOffset;
-      const top = yStart + (this.space.y * yInterval);
+      // Needed so compiler doesn't get grumpy, since the property is defined as optional
+      if (this.space.equatorLength === undefined) {
+        console.error(`equatorLength is undefined on space with id ${this.space.id}`);
+        return {};
+      }
 
+      // Length of the longest (middle) row in the planet. The placement of every tile
+      // uses this as an anchor to align everything properly regardless of size
+      const equatorLength = this.space.equatorLength;
+
+      // Initial position of any row on css left
+      const xStart = 54 / equatorLength;
+
+      // Rows are placed beginning at the equator, then up and below
+      // 50 means top: 50% of the div that is the planet
+      const yStart = 50;
+
+      // The left: % space to advance for each next tile in a row
+      const xInterval = 99 / equatorLength;
+
+      // The left: % space that every row is offset forward relative to the equator row
+      const xOffset = 49.5 / equatorLength;
+
+      // The top: % space that every row is offset up and down relative to the equator row
+      const yOffset = 81 / equatorLength;
+
+      // Calculate the total row offset based on where this row lies relative to the equator
+      const rowOffset = Math.abs(this.space.yRelativeToEquator * xOffset);
+
+      // Calculate the total column offset based on where this row lies relative to the equator
+      const colOffset = this.space.yRelativeToEquator * yOffset;
+
+      // Our css left and right properties with their final % number for this particular space
+      const left = xStart + (this.space.x * xInterval) - rowOffset;
+      const top = yStart - colOffset;
+
+      console.log(`${this.space.id} left: ${xStart} + (${this.space.x} * ${xInterval}) - ${rowOffset}`);
+
+      // The final style object to return
       const styleObject = {
         left: `${left}%`,
         top: `${top}%`,

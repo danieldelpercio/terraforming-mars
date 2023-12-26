@@ -20,6 +20,7 @@ export interface SerializedSpace {
   x: number;
   y: number;
   yRelativeToEquator?: number;
+  equatorLength?: number;
   undergroundResources?: UndergroundResourceToken;
   excavator?: PlayerId;
 }

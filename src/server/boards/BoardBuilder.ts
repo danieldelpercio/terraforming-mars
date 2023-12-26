@@ -68,9 +68,10 @@ export class BoardBuilder {
       for (let i = 0; i < tilesInThisRow; i++) {
         const spaceId = 100 + idx;
         const xCoordinate = xOffset + i;
-        const yRelativeToEquator = Math.abs(rowCountHalved - row);
+        const yRelativeToEquator = rowCountHalved - row;
         const space = newSpace(BoardBuilder.spaceId(spaceId), this.spaceTypes[idx], xCoordinate, row, this.bonuses[idx]);
         space.yRelativeToEquator = yRelativeToEquator;
+        space.equatorLength = this.equatorLength;
         this.spaces.push(space);
         idx++;
       }

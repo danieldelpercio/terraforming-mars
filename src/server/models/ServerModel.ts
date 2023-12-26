@@ -336,6 +336,10 @@ export class Server {
       if (yRelativeToEquator !== undefined) {
         model.yRelativeToEquator = yRelativeToEquator;
       }
+      const equatorLength = space.equatorLength;
+      if (equatorLength !== undefined) {
+        model.equatorLength = equatorLength;
+      }
       const tileType = space.tile?.tileType;
       if (tileType !== undefined) {
         model.tileType = tileType;

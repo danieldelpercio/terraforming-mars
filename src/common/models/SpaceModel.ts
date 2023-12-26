@@ -12,6 +12,7 @@ export type SpaceModel = {
   x: number;
   y: number;
   yRelativeToEquator?: number; // Absent or a number
+  equatorLength?: number; // Absent or a number
   spaceType: SpaceType;
 
   bonus: Array<SpaceBonus>;

@@ -31,7 +31,7 @@ export abstract class Board {
   // stores adjacent spaces in clockwise order starting from the top left
   private readonly adjacentSpaces = new Map<SpaceId, ReadonlyArray<Space>>();
 
-  protected constructor(public spaces: ReadonlyArray<Space>) {
+  protected constructor(public spaces: ReadonlyArray<Space>, public equatorLength: number = 9) {
     this.maxX = Math.max(...spaces.map((s) => s.x));
     this.maxY = Math.max(...spaces.map((s) => s.y));
     spaces.forEach((space) => {
@@ -307,6 +307,9 @@ export abstract class Board {
         };
         if (space.yRelativeToEquator !== undefined) {
           serialized.yRelativeToEquator = space.yRelativeToEquator;
+        }
+        if (space.equatorLength !== undefined) {
+          serialized.equatorLength = space.equatorLength;
         }
         if (space.undergroundResources !== undefined) {
           serialized.undergroundResources = space.undergroundResources;

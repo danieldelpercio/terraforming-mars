@@ -29,6 +29,9 @@ export type Space = {
    * if it's the row right above or right below the equator, this is 1. */
   yRelativeToEquator?: number;
 
+  /** The number of tiles in the longest row of the board (the centre one). */
+  equatorLength?: number;
+
   /** Optional underworld expansion resource token. */
   undergroundResources?: UndergroundResourceToken;
   /** Optional underworld player who excavated this resource token. */
