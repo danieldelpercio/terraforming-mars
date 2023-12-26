@@ -591,9 +591,6 @@ export default Vue.extend({
         left: `${paramTrackPosition.cssLeft}%`,
         top: `${paramTrackPosition.cssTop}%`,
         transform: `rotate(${paramTrackPosition.rotation}deg)`,
-        // Below is for debug
-        border: '1px solid red',
-        background: 'linear-gradient(red, red) no-repeat center / 1px 100%, linear-gradient(red, red) no-repeat center / 100% 1px',
       };
 
       return styleObject;
