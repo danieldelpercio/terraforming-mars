@@ -31,6 +31,7 @@
         <a name="board" class="player_home_anchor"></a>
         <board
           :spaces="game.spaces"
+          :equatorLength="game.equatorLength"
           :venusNextExtension="game.gameOptions.venusNextExtension"
           :venusScaleLevel="game.venusScaleLevel"
           :boardName ="game.gameOptions.boardName"
@@ -224,6 +225,7 @@
         <div class="accordion-body">
           <board
             :spaces="game.spaces"
+            :equatorLength="game.equatorLength"
             :venusNextExtension="game.gameOptions.venusNextExtension"
             :venusScaleLevel="game.venusScaleLevel"
             :boardName ="game.gameOptions.boardName"

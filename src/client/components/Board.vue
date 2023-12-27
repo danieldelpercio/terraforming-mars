@@ -77,7 +77,7 @@
             </div>
         </div>
 
-        <div class="board" id="main_board">
+        <div class="board board-debug" id="main_board">
             <board-space
               v-for="curSpace in getAllSpacesOnMars()"
               :key="curSpace.id"
@@ -429,6 +429,9 @@ export default Vue.extend({
     spaces: {
       type: Array as () => Array<SpaceModel>,
     },
+    equatorLength: {
+      type: Number,
+    },
     venusNextExtension: {
       type: Boolean,
     },
@@ -615,8 +618,8 @@ export default Vue.extend({
       return this.venusNextExtension ? 'board-cont board-with-venus' : 'board-cont board-without-venus';
     },
     setBoardWidth(): object {
-      const marsSpaces = this.getAllSpacesOnMars();
-      const equatorLength = this.calculateEquatorFromMarsSpaces(marsSpaces.length);
+      const equatorLength = this.equatorLength;
+      console.log(`equatorLength: ${equatorLength}`);
 
       // Standard board is 670px wide, with an equator of 9 tiles.
       // Extrapolating this to any other length: 670 / 9 = 74.4
@@ -626,31 +629,6 @@ export default Vue.extend({
       return {
         width: `${width}px`,
       };
-    },
-    // Since I've found no way to simply pass the equatorLength from the board
-    // to this file, I had to just calculate it using the number of spaces on mars
-    calculateEquatorFromMarsSpaces(numOfSpaces: number): number {
-      // We can calculate the side length of a hexagon of hexagons through
-      // the equation 3x(x-1)+1 = numOfSpaces, where x is the side length.
-      // Converting that to quadratic form, we get:
-      //
-      // 3x^2 - 3x - (numOfSpaces - 1) = 0
-      //
-      // The three terms needed to solve quadratic equations are then:
-      //
-      // a = 3, b = -3 and c = -(numOfSpaces-1)
-      //
-      // Once we have the side length, the length of the equator is simply
-      // two times the side length - 1
-      const a = 3;
-      const b = -3;
-      const c = -(numOfSpaces - 1);
-
-      // We're obviously only interested in the positive result of the equation
-      const sideLength = Math.abs( (-1 * b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a) );
-      const equatorLength = (2 * sideLength) - 1;
-      console.log(`sideLength: ${sideLength}`, `equatorLength: ${equatorLength}`);
-      return equatorLength;
     },
   },
   computed: {

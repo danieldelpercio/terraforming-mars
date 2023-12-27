@@ -36,6 +36,7 @@ export type GameModel = {
   pathfinders: PathfindersModel | undefined;
   phase: Phase;
   spaces: Array<SpaceModel>;
+  equatorLength: number;
   spectatorId?: SpectatorId;
   step: number;
   temperature: number;

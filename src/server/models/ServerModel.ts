@@ -53,6 +53,7 @@ export class Server {
 
   public static getGameModel(game: IGame): GameModel {
     const turmoil = getTurmoilModel(game);
+    const spaces = this.getSpaces(game.board, game.gagarinBase, game.stJosephCathedrals, game.nomadSpace);
 
     return {
       aresData: game.aresData,
@@ -74,7 +75,12 @@ export class Server {
       passedPlayers: game.getPassedPlayers(),
       pathfinders: createPathfindersModel(game),
       phase: game.phase,
-      spaces: this.getSpaces(game.board, game.gagarinBase, game.stJosephCathedrals, game.nomadSpace),
+      spaces: spaces,
+      // Extract the row (y) property from the spaces array, then grab the max
+      // one out of them, which will be the last row. The equator length is the
+      // number of rows as well, but we need to increment it by 1, since the
+      // numbering of rows starts at 0
+      equatorLength: Math.max(...spaces.map((s) => s.y)) + 1,
       spectatorId: game.spectatorId,
       temperature: game.getTemperature(),
       isTerraformed: game.marsIsTerraformed(),

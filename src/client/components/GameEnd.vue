@@ -162,6 +162,7 @@
               <h2 v-i18n>Final situation on the board</h2>
               <board
                   :spaces="game.spaces"
+                  :equatorLength="game.equatorLength"
                   :venusNextExtension="game.gameOptions.venusNextExtension"
                   :venusScaleLevel="game.venusScaleLevel"
                   :aresExtension="game.gameOptions.aresExtension"
